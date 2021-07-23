@@ -1,6 +1,8 @@
-plugins {
+plugins {   // 拡張機能
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'realm-android'
 }
 
 android {
@@ -24,7 +26,7 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8    //ジャバのバージョンを指定
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
@@ -37,6 +39,7 @@ android {
 
 dependencies {
 
+    implementation 'io.realm:android-adapters:2.1.1'   // Realmを使ってデータベースのデータを一覧表示するためのアダプタークラス
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.6.0'
     implementation 'androidx.appcompat:appcompat:1.3.0'
