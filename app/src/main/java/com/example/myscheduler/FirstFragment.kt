@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.example.myscheduler.databinding.FragmentFirstBinding
+import io.realm.Realm
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -18,7 +19,12 @@ class FirstFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private lateinit var realm: Realm  // Realmクラスのプロパティを用意
 
+    override fun onCreate(savedInstanceState: Bundle?){
+        super.onCreate(savedInstanceState)
+        realm = Realm.getDefaultInstance()   // getDefaultInstance: Realmクラスのインスタンスを取得
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,5 +46,10 @@ class FirstFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy(){  //アクティビティの終了処理
+        super.onDestroy()
+        realm.close()  // Realmのインスタンスを破棄して、リソースを開放
     }
 }
