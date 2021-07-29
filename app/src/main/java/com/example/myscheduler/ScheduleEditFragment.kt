@@ -52,9 +52,41 @@ class ScheduleEditFragment : Fragment() {
                                                         schedule?.date))
             binding.titleEdit.setText(schedule?.title)
             binding.detailEdit.setText(schedule?.detail)
+            binding.delete.visibility = View.VISIBLE  // 削除ボタンを表示
+        }else {
+            binding.delete.visibility = View.INVISIBLE  // 更新時以外は非表示
         }
         (activity as? MainActivity)?.setFabVisible(View.INVISIBLE)  // MainActivityのsetFabVisibleを用いて、fabボタンを非表示にしています
-        binding.save.setOnClickListener{saveSchedule(it)}   // 保存ボタンを押したときにsaveScheduleを実行
+        binding.save.setOnClickListener {
+            val dialog = ConfirmDialog("保存しますか?",    // ConfirmDialogはDialog.ktファイルで定義した
+                "保存", { saveSchedule(it) },   // 保存ボタンを押したときにsaveScheduleを実行
+                "キャンセル", {
+                    Snackbar.make(it, "キャンセルしました", Snackbar.LENGTH_SHORT)
+                        .show()   // スナックバーを表示
+                })
+            dialog.show(parentFragmentManager, "save_dialog")  // ダイアログを表示
+        }
+        binding.delete.setOnClickListener{   // 削除ボタンを押したとき実行
+            val dialog = ConfirmDialog(
+                "削除しますか",
+                "削除", {deleteSchedule(it)},
+                "キャンセル",{
+                    Snackbar.make(it, "キャンセルしました", Snackbar.LENGTH_SHORT)
+                        .show()
+                })
+            dialog.show(parentFragmentManager, "delete_dialog")
+        }
+        binding.dateButton.setOnClickListener{
+            DateDialog{date ->    // 選択された日付をdateに格納
+                binding.dateEdit.setText(date)
+            }.show(parentFragmentManager, "date_dialog")
+        }
+
+        binding.timeButton.setOnClickListener{
+            TimeDialog{ time ->
+                binding.timeEdit.setText(time)
+            }.show(parentFragmentManager, "time_dialog")
+        }
     }
 
     private fun saveSchedule(view: View){  //データベースへの保存処理
@@ -95,6 +127,21 @@ class ScheduleEditFragment : Fragment() {
                     .show()
             }
         }
+    }
+
+    private fun deleteSchedule(view: View){
+        realm.executeTransaction{db: Realm ->
+            db.where<Schedule>().equalTo("id", args.scheduleId)
+                ?.findFirst()
+                ?.deleteFromRealm()  // deleteFromRealm(): データベースからレコードを削除
+
+            findNavController().popBackStack()
+        }
+        Snackbar.make(view, "削除しました", Snackbar.LENGTH_SHORT)
+            .setActionTextColor(Color.YELLOW)
+            .show()
+
+        findNavController().popBackStack()
     }
 
     override fun onDestroyView(){
