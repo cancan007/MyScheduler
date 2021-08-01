@@ -53,3 +53,4 @@ class ScheduleAdapter(data: OrderedRealmCollection<Schedule>):
         return getItem(position)?.id ?: 0
     }
 }
+
